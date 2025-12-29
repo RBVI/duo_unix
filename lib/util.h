@@ -16,6 +16,7 @@
 #include <pwd.h>
 #include <syslog.h>
 #include <stdarg.h>
+#include <time.h>
 
 extern int duo_debug;
 
@@ -47,7 +48,15 @@ struct duo_config {
     int  fips_mode;
     int  gecos_username_pos;
     int  verified_push;
+    long int  remember_me_duration; /* in seconds */
+    int  remember_me_protected;
 };
+
+struct remembered {
+    int addr[4];
+    time_t time;
+};
+
 
 void duo_config_default(struct duo_config *cfg);
 
@@ -85,5 +94,26 @@ char *duo_split_at(char *s, char delimiter, unsigned int position);
 
 /* Free and zero out memory */
 void duo_zero_free(void *ptr, size_t size);
+
+/* Remember me */
+
+int duo_is_remembered(
+    struct passwd *pw,
+    const char *fn,
+    struct duo_config *cfg,
+    const char *host
+);
+
+void duo_remember(
+    struct passwd *pw,
+    const char *fn,
+    struct duo_config *cfg,
+    const char *host
+);
+
+char *duo_remember_me_prompt(
+    struct duo_config *cfg,
+    const char *host
+);
 
 #endif
